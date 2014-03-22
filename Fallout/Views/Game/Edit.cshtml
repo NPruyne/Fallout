@@ -1,0 +1,190 @@
+﻿@model Fallout.Models.Character
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Character</legend>
+
+        @Html.HiddenFor(model => model.CharacterID)
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.PlayerName)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.PlayerName)
+            @Html.ValidationMessageFor(model => model.PlayerName)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.CharacterName)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.CharacterName)
+            @Html.ValidationMessageFor(model => model.CharacterName)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Age)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Age)
+            @Html.ValidationMessageFor(model => model.Age)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Sex)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Sex)
+            @Html.ValidationMessageFor(model => model.Sex)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Race)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Race)
+            @Html.ValidationMessageFor(model => model.Race)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Eyes)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Eyes)
+            @Html.ValidationMessageFor(model => model.Eyes)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Hair)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Hair)
+            @Html.ValidationMessageFor(model => model.Hair)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Height)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Height)
+            @Html.ValidationMessageFor(model => model.Height)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Weight)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Weight)
+            @Html.ValidationMessageFor(model => model.Weight)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Description)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Description)
+            @Html.ValidationMessageFor(model => model.Description)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Strength)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Strength)
+            @Html.ValidationMessageFor(model => model.Strength)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Perception)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Perception)
+            @Html.ValidationMessageFor(model => model.Perception)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Endurance)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Endurance)
+            @Html.ValidationMessageFor(model => model.Endurance)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Charisma)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Charisma)
+            @Html.ValidationMessageFor(model => model.Charisma)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Intelligence)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Intelligence)
+            @Html.ValidationMessageFor(model => model.Intelligence)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Agility)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Agility)
+            @Html.ValidationMessageFor(model => model.Agility)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Luck)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Luck)
+            @Html.ValidationMessageFor(model => model.Luck)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Experience)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Experience)
+            @Html.ValidationMessageFor(model => model.Experience)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.HitPoints)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.HitPoints)
+            @Html.ValidationMessageFor(model => model.HitPoints)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.ActionPoints)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.ActionPoints)
+            @Html.ValidationMessageFor(model => model.ActionPoints)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,201 @@
+﻿@model Fallout.Models.ViewModels.CharacterSheet
+@using Fallout.Models
+@{
+   
+    ViewBag.Title = "Character";
+}
+
+<div class="RPInfo" style="width:100%;border:1px solid black">
+    Name: <span style="width:50%">@Model.Character.CharacterName </span> 
+    Age: <span style="width:5%">@Model.Character.Age </span>
+    Sex: <span style="width:5%">@Model.Character.Sex </span>
+    Race: <span style="width:10%">@Model.Character.Race </span><br />
+    Eyes: <span style="width:20%">@Model.Character.Eyes </span> 
+    Hair: <span style="width:20%">@Model.Character.Hair </span>
+    Height: <span style="width:20%">@Model.Character.Height </span>
+    Weight: <span style="width:20%">@Model.Character.Weight </span><br />
+    Description: @Model.Character.Description @Html.ActionLink("Weapons, yo", "WeaponSeed", new { id = Model.Character.CharacterID }) @Html.ActionLink("Armor, yo", "ArmorSeed", new { id = Model.Character.CharacterID} )
+    @Html.ActionLink("Good Natured", "TraitSeed", new { id = Model.Character.CharacterID })  @Html.ActionLink("Cybernetics", "CyberneticSeed", new { id = Model.Character.CharacterID})
+</div>
+<div class="LeftColumn" style="float:left; width:49%; margin-top:10px">
+    <div class="Stats" style="border:1px solid Black">
+        <table style="width:100%">
+            <tr><th></th><th>Total</th><th>Mod</th><th>Base</th></tr>
+            <tr><td>ST</td><td>@Model.Strength</td><td>@Model.CollateModifiers(ModifierType.Strength)</td><td>@Model.Character.Strength</td></tr>
+            <tr><td>PE</td><td>@Model.Perception</td><td>@Model.CollateModifiers(ModifierType.Perception)</td><td>@Model.Character.Perception</td></tr>
+            <tr><td>EN</td><td>@Model.Endurance</td><td>@Model.CollateModifiers(ModifierType.Endurance)</td><td>@Model.Character.Endurance</td></tr>
+            <tr><td>CH</td><td>@Model.Charisma</td><td>@Model.CollateModifiers(ModifierType.Charisma)</td><td>@Model.Character.Charisma</td></tr>
+            <tr><td>IN</td><td>@Model.Intellegence</td><td>@Model.CollateModifiers(ModifierType.Intelligence)</td><td>@Model.Character.Intelligence</td></tr>
+            <tr><td>AG</td><td>@Model.Agility</td><td>@Model.CollateModifiers(ModifierType.Agility)</td><td>@Model.Character.Agility</td></tr>
+            <tr><td>LK</td><td>@Model.Luck</td><td>@Model.CollateModifiers(ModifierType.Luck)</td><td>@Model.Character.Luck</td></tr>
+        </table>
+
+    </div>
+    <div class="LevelBox" style="margin-top:10px; border:1px solid black;padding:5px 5px">
+        Level <span style="border:1px solid black">@Model.CharacterLevel</span> Karma <span style="border:1px solid black">0</span> Hp/Level <span style="border:1px solid black">33</span><br />
+        Experience <span style="border:1px solid black">@Model.Character.Experience</span> Carry Weight <span style="border:1px solid black">@Model.CarryWeight lbs</span><br />
+        Wounds <span style="border:1px solid black; width:100%"></span>
+
+    </div>
+    <div class="DefensiveStats" style="border:1px solid black; margin-top:10px">
+        <table style="width:100%; margin-bottom:10px">
+            <tr><th>Hit Points</th><th>Armor Class</th><th>Mods</th><th>Base AC</th></tr>
+            <tr><td>@Model.MaxHitPoints</td><td>@Model.ArmorClassBody</td><td>33</td><td>33</td></tr>
+        </table>
+        <table style="width:100%; margin-bottom:10px">
+            <tr><th></th><th>DT</th><th>DR</th><th>Mod</th><th>Base</th><th>Armor</th></tr>
+            <tr>
+                <td>Normal</td>
+                <td>@Model.ResistNormalBody.Threshold (3)</td>
+                <td>@Model.ResistNormalBody.Resistance (40)</td>
+                <td>33</td>
+                <td>33</td>
+                <td>33</td>
+            </tr>
+            <tr>
+                <td>Laser</td>
+                <td>@Model.ResistNormalBody.Threshold (1)</td>
+                <td>@Model.ResistNormalBody.Resistance (35)</td>
+                <td>33</td>
+                <td>33</td>
+                <td>33</td>
+            </tr>
+            <tr>
+                <td>Fire</td>
+                <td>@Model.ResistNormalBody.Threshold (1)</td>
+                <td>@Model.ResistNormalBody.Resistance (20)</td>
+                <td>33</td>
+                <td>33</td>
+                <td>33</td>
+            </tr>
+            <tr>
+                <td>Plasma</td>
+                <td>@Model.ResistNormalBody.Threshold (0)</td>
+                <td>@Model.ResistNormalBody.Resistance (15)</td>
+                <td>33</td>
+                <td>33</td>
+                <td>33</td>
+            </tr>
+            <tr>
+                <td>Explosive</td>
+                <td>@Model.ResistNormalBody.Threshold (5)</td>
+                <td>@Model.ResistNormalBody.Resistance (35)</td>
+                <td>33</td>
+                <td>33</td>
+                <td>33</td>
+            </tr>
+
+        </table>
+         <h5>Resistance</h5>
+        <table style="width:100%; margin-bottom:10px; text-align:right">
+            <tr>
+                <td>Poison</td>
+                <td style="border:1px solid black">33</td>
+                <td>Rad</td>
+                <td style="border:1px solid black">33</td>
+                <td>Heal</td>
+                <td style="border:1px solid black">33</td>
+            </tr>
+            <tr>
+                <td>Burn</td>
+                <td style="border:1px solid black">33</td>
+                <td>Elec</td>
+                <td style="border:1px solid black">33</td>
+                <td>Gas</td>
+                <td style="border:1px solid black">33/33</td>
+            </tr>
+        </table>
+        <h5>Armor Condition</h5>
+        <table style="width:100%; border:1px solid black; margin-bottom:10px">
+            <tr>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+                <td style="border:1px solid black"></td>
+            </tr>
+        </table>
+        @using (Html.BeginForm("SetHeadItem", "Game"))
+        {
+            @:Head: @Html.DropDownListFor(m => m.HeadSlot, new SelectList(Model.HeadOptions, "EquipmentID", "Name", Model.Character.HeadArmor.EquipmentID), "Select Item")
+            @Html.Hidden("CharacterID", Model.Character.CharacterID);
+            <input type="submit" value="Equip" />
+        }
+        @using (Html.BeginForm("SetBodyItem", "Game"))
+        {
+            @:Body: @Html.DropDownListFor(m => m.BodySlot, new SelectList(Model.BodyOptions, "EquipmentID", "Name", 7), "Select Item")
+            @Html.Hidden("CharacterID", Model.Character.CharacterID);
+            <input type="submit" value="Equip" />
+        }
+        <h5>Combat</h5>
+        <table style="width:100%; margin-bottom:10px">
+            <tr>
+                <td>Action Points</td>
+                <td style="border:1px solid black">33</td>
+                <td>Sequence</td>
+                <td style="border:1px solid black">33</td>
+                <td>PE Range</td>
+                <td style="border:1px solid black">33</td>
+            </tr>
+            <tr>
+                <td>Melee Damage</td>
+                <td style="border:1px solid black">@Model.MeleeDamage</td>
+                <td>Critical Chance</td>
+                <td style="border:1px solid black">33</td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="RightColumn" style="margin-left:51%; margin-top:10px">
+    <div class="SkillList" style="border:1px solid black; text-align:center">
+        @Html.ActionLink("SET DEFAULT SKILLS", "SetSkills", new { id = Model.Character.CharacterID })
+        <h5>Skills</h5>
+        <table class="SkillTable" style="width:100%">
+            <tr><th></th><th>Total</th><th>Points</th><th>Mod</th><th>Base</th></tr>
+            @foreach (var skills in Model.Character.Skills)
+            {
+                <tr>
+                    <td>@skills.Name</td>
+                    <td style="border:1px solid black">@Model.SkillTotal(skills.Name)</td>
+                    <td>@skills.PointsInvested</td>
+                    <td>@Model.CollateModifiers(skills.Name)</td>
+                    <td>@Model.SkillBase(skills.Name)</td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="OffenseStats" style="border:1px solid black; margin-top:10px">
+        <div class="LeftHand" style="float:left;width:49%;">
+            <h5>Left Hand</h5>
+            <select id="LeftHandSelect">
+                @foreach (Equipment item in Model.Character.Gear)
+                { 
+                    if(item is Weapon)
+                    { 
+                        <option value="@item.EquipmentID">@item.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="RightHand" style="margin-left:51%">
+            <h5>Right Hand</h5>
+            <select id="RightHandSelect">
+            @foreach (Equipment item in Model.Character.Gear)
+            {
+                if (item is Weapon)
+                {
+                    <option value="@item.EquipmentID">@item.Name</option>
+                }
+            }
+            </select>
+        </div>
+
+    </div>
+</div>
