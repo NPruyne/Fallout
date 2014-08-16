@@ -23,18 +23,7 @@ namespace Fallout.Controllers
             return View(Chars.ToList());
         }
 
-        //
-        // GET: /Game/Details/5
-
-        public ActionResult Details(int id)
-        {
-            var Chars = from m in db.Characters
-                        where m.CharacterID == id
-                        select m;
-
-            return View(Chars.FirstOrDefault());
-        }
-
+        #region Create Character
         //
         // GET: /Game/Create
 
@@ -62,59 +51,65 @@ namespace Fallout.Controllers
                 return View();
             }
         }
+        #endregion
 
-        //
-        // GET: /Game/Edit/5
-
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        //
-        // POST: /Game/Edit/5
-
-        [HttpPost]
-        public ActionResult Edit(int id, Character character)
-        {
-            try
-            {
-                // TODO: Add update logic here
-                
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
 
         //
         // GET: /Game/Delete/5
 
         public ActionResult Delete(int id)
         {
-            return View();
+            Character player = db.Characters.Find(id);
+            player.Traits.Clear();
+            player.Skills.Clear();
+            player.Perks.Clear();
+            player.Gear.Clear();
+
+            db.Characters.Remove(player);
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
+        
         //
-        // POST: /Game/Delete/5
+        // GET: /Game/Inventory/2
+        public ActionResult Inventory(long id)
+        {
+            Character thecharacter = db.Characters.Find(id);
+            return View(thecharacter);
+        }
 
         [HttpPost]
-        public ActionResult Delete(int id, Character character)
+        public ActionResult RemoveInventory(long CharacterID, int EquipmentID)
         {
-            try
-            {
-                db.Characters.Remove(character);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            Character thecharacter = db.Characters.Find(CharacterID);
+            thecharacter.Gear.Remove(thecharacter.Gear.First(e => e.EquipmentID == EquipmentID));
+            if (thecharacter.HeadArmorID == EquipmentID)
+                thecharacter.HeadArmorID = null;
+            if (thecharacter.BodyArmorID == EquipmentID)
+                thecharacter.BodyArmorID = null;
+            if (thecharacter.LeftHandID == EquipmentID)
+                thecharacter.LeftHandID = null;
+            if (thecharacter.RightHandID == EquipmentID)
+                thecharacter.RightHandID = null;
+            db.SaveChanges();
+            return RedirectToAction("Inventory", new { id = CharacterID });
+
         }
 
+        public ActionResult AddInventory()
+        {
+            return PartialView();
+        }
+
+        [HttpPost]
+        public ActionResult AddInventory(long id, Equipment equipment)
+        {
+            Character player = db.Characters.Find(id);
+            player.Gear.Add(equipment);
+            db.SaveChanges();
+            return RedirectToAction("Inventory", new { id = id });
+        }
         //
         // GET: /Game/Character
 
@@ -126,52 +121,57 @@ namespace Fallout.Controllers
 
             Fallout.Models.ViewModels.CharacterSheet sheet = new Models.ViewModels.CharacterSheet();
             sheet.Character = Chars.FirstOrDefault();
-            if (sheet.Character.HeadArmor != null) sheet.HeadSlot = sheet.Character.HeadArmor;
-            if (sheet.Character.BodyArmor != null) sheet.BodySlot = sheet.Character.BodyArmor;
+            if (sheet.Character.HeadArmorID != null)
+            {
+                sheet.HeadSlot = (Armor)sheet.Character.Gear.First(e => e.EquipmentID == sheet.Character.HeadArmorID);
+            }
+            if (sheet.Character.BodyArmorID != null)
+            {
+                sheet.BodySlotID = sheet.Character.BodyArmorID;
+                sheet.BodySlot = (Armor)sheet.Character.Gear.First(e => e.EquipmentID == sheet.Character.BodyArmorID);
+            }
+            if (sheet.Character.LeftHandID != null)
+            {
+                sheet.LeftHandID = sheet.Character.LeftHandID;
+                sheet.LeftHand = (Weapon)sheet.Character.Gear.First(e => e.EquipmentID == sheet.Character.LeftHandID);
+            }
+            if (sheet.Character.RightHandID != null)
+            {
+                sheet.RightHandID = sheet.Character.RightHandID;
+                sheet.RightHand = (Weapon)sheet.Character.Gear.First(e => e.EquipmentID == sheet.Character.RightHandID);
+            }
             return View(sheet);
         }
 
-        // POST: /Game/SetHeadItem
-
+        #region SetEquippedItems
         
-        public ActionResult SetHeadItem(int CharacterID, int HeadSlot )
+        public ActionResult EquipItem(int CharacterID, int? BodySlotID, int? HeadSlotID, int? LeftHandID, int? RightHandID, EquipmentSlot EquipmentType )
         {
             Character character = db.Characters.Find(CharacterID);
-
-            character.HeadArmor = (Armor)character.Gear.First(m => m.EquipmentID == HeadSlot);
-            
+            switch (EquipmentType)
+            {
+                case EquipmentSlot.Head:
+                    character.HeadArmorID = HeadSlotID;
+                    break;
+                case EquipmentSlot.Body:
+                    character.BodyArmorID = BodySlotID;
+                    break;
+                case EquipmentSlot.LeftHand:
+                    character.LeftHandID = LeftHandID;
+                    break;
+                case EquipmentSlot.RightHand:
+                    character.RightHandID = RightHandID;
+                    break;
+            }
             db.SaveChanges();
 
             return RedirectToAction("Character", new { id = CharacterID });
         }
 
-
-        public ActionResult SetBodyItem(int CharacterID, int BodySlot)
-        {
-            Character character = db.Characters.Find(CharacterID);
-
-            character.BodyArmor = (Armor)character.Gear.First(m => m.EquipmentID == BodySlot);
-
-            db.SaveChanges();
-
-            return RedirectToAction("Character", new { id = CharacterID });
-        }
-
-        // GET: /Game/SetRightHand
-
-        public ActionResult SetRightHand(int EquipmentID, Character character)
-        { 
-            Character thecharacter = db.Characters.Find(character);
-            //get equipment
-            Equipment item = thecharacter.Gear.First(g => g.EquipmentID == EquipmentID);
-            thecharacter.RightHand = (Weapon)item;
-            db.SaveChanges();
-
-            return RedirectToAction("Character", new { id = thecharacter.CharacterID });
-            
-        }
+        #endregion
 
 
+        #region Seeds
         //
         // GET: /Game/SetSkills/2
 
@@ -194,118 +194,99 @@ namespace Fallout.Controllers
             Skill addskill = new Skill();
             //Small Guns
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Small Guns";
             addskill.Description = "The ability to use small guns and rifles";
             addskill.Tagged = true;
             character.Skills.Add(addskill);
             //Big Guns
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Big Guns";
             addskill.Description = "The ability to use big guns";
             character.Skills.Add(addskill);
             //Energy Weapons
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Energy Weapons";
             addskill.Description = "The ability to use energy weapons";
             character.Skills.Add(addskill);
             //Unarmed
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Unarmed";
             addskill.Description = "The ability to fight unarmed";
             character.Skills.Add(addskill);
             //Melee
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Melee";
             addskill.Description = "The ability to use melee weapons";
             character.Skills.Add(addskill);
             //Throwing
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Throwing";
             addskill.Description = "The ability to use thrown weapons";
             character.Skills.Add(addskill);
             //First Aid
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "First Aid";
             addskill.Description = "The ability to heal minor wounds";
             addskill.Tagged = true;
             character.Skills.Add(addskill);
             //Doctor
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Doctor";
             addskill.Description = "The ability to heal major wounds";
             addskill.Tagged = true;
             character.Skills.Add(addskill);
             //Sneak
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Sneak";
             addskill.Description = "The ability to move silent and not be seen";
             character.Skills.Add(addskill);
             //Lockpick
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Lockpick";
             addskill.Description = "The ability to pick doors and chests";
             character.Skills.Add(addskill);
             //Steal
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Steal";
             addskill.Description = "The ability to steal things unnoticed";
             character.Skills.Add(addskill);
             //Traps
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Traps";
             addskill.Description = "The ability to lay traps";
             character.Skills.Add(addskill);
             //Science
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Science";
             addskill.Description = "The ability to invent new things";
             character.Skills.Add(addskill);
             //Repair
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Repair";
             addskill.Description = "The ability to repair guns and robots";
             character.Skills.Add(addskill);
             //Pilot
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Pilot";
             addskill.Description = "The ability to drive cars and planes";
             character.Skills.Add(addskill);
             //Speech
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Speech";
             addskill.Description = "The ability to talk to people well";
             character.Skills.Add(addskill);
             //Barter
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Barter";
             addskill.Description = "The ability to negotiate trades and sales";
             character.Skills.Add(addskill);
             //Gambling
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Gambling";
             addskill.Description = "The ability to bend lady luck to you favor";
             character.Skills.Add(addskill);
             //Outdoorsman
             addskill = new Skill();
-            addskill.CharacterID = id;
             addskill.Name = "Outdoorsman";
             addskill.Description = "The ability to live off the land, know dangerous spots";
             character.Skills.Add(addskill);
@@ -391,131 +372,222 @@ namespace Fallout.Controllers
             Character character = db.Characters.Find(id);
 
             Armor armor = new Armor();
+            Modifier mod = new Modifier();
+            ArmorResistance res = new ArmorResistance();
             armor.Name = "Leather Armor";
             armor.Description = "A shirt made of leather and padded for extra protection.";
             armor.Value = 700;
             armor.Weight = 8;
             armor.SlotType = ArmorSlot.Body;
-            armor.ArmorClass = 15;
-            armor.ResistNormal.Resistance = 2;
-            armor.ResistNormal.Threshold = 25;
-            armor.ResistLaser.Resistance = 0;
-            armor.ResistLaser.Threshold = 20;
-            armor.ResistFire.Resistance = 0;
-            armor.ResistFire.Threshold = 20;
-            armor.ResistPlasma.Resistance = 0;
-            armor.ResistPlasma.Threshold = 10;
-            armor.ResistExplosion.Resistance = 0;
-            armor.ResistExplosion.Threshold = 20;
-
-            character.Gear.Add(armor);
-
-            armor = new Armor();
-            armor.Name = "Metal Armor";
-            armor.Description = "A jacket of armor made from pieces of scrap metal welded together.";
-            armor.Value = 1100;
-            armor.Weight = 35;
-            armor.SlotType = ArmorSlot.Body;
-            armor.ArmorClass = 10;
-            armor.ResistNormal.Resistance = 4;
-            armor.ResistNormal.Threshold = 30;
-            armor.ResistLaser.Resistance = 6;
-            armor.ResistLaser.Threshold = 75;
-            armor.ResistFire.Resistance = 4;
-            armor.ResistFire.Threshold = 10;
-            armor.ResistPlasma.Resistance = 4;
-            armor.ResistPlasma.Threshold = 20;
-            armor.ResistExplosion.Resistance = 4;
-            armor.ResistExplosion.Threshold = 25;
-            Modifier mod = new Modifier();
-            SkillModifier skillmod = new SkillModifier();
-            skillmod.Skill = "Sneak";
-            skillmod.Value = -25;
-            mod.Skill.Add(skillmod);
+            mod = new Modifier();
+            mod.ArmorClass = 15;
+            //Normal
+            res = new ArmorResistance();
+            res.Threshold = 2;
+            res.Resistance = 25;
+            res.ResistanceType = ResistType.Normal;
+            mod.ArmorResists.Add(res);
+            //Laser
+            res = new ArmorResistance();
+            res.Threshold = 0;
+            res.Resistance = 20;
+            res.ResistanceType = ResistType.Laser;
+            mod.ArmorResists.Add(res);
+            //Fire
+            res = new ArmorResistance();
+            res.Threshold = 0;
+            res.Resistance = 20;
+            res.ResistanceType = ResistType.Fire;
+            mod.ArmorResists.Add(res);
+            //Plasma
+            res = new ArmorResistance();
+            res.Threshold = 0;
+            res.Resistance = 10;
+            res.ResistanceType = ResistType.Plasma;
+            mod.ArmorResists.Add(res);
+            //Explosion
+            res = new ArmorResistance();
+            res.Threshold = 0;
+            res.Resistance = 20;
+            res.ResistanceType = ResistType.Explosion;
+            mod.ArmorResists.Add(res);
             armor.Mod = mod;
-
             character.Gear.Add(armor);
 
-            armor = new Armor();
-            armor.Name = "Leather Cap";
-            armor.Description = "A simple cap, made from tanned Brahmin hide.";
-            armor.Value = 90;
-            armor.Weight = 0;
-            armor.SlotType = ArmorSlot.Head;
-            armor.ArmorClass = 3;
-            armor.ResistNormal.Resistance = 0;
-            armor.ResistNormal.Threshold = 0;
-            armor.ResistLaser.Resistance = 0;
-            armor.ResistLaser.Threshold = 0;
-            armor.ResistFire.Resistance = 0;
-            armor.ResistFire.Threshold = 0;
-            armor.ResistPlasma.Resistance = 0;
-            armor.ResistPlasma.Threshold = 0;
-            armor.ResistExplosion.Resistance = 0;
-            armor.ResistExplosion.Threshold = 0;
-
-            character.Gear.Add(armor);
 
             armor = new Armor();
-            armor.Name = "Combat Helmet";
-            armor.Description = "Part of a suit of combat armor, this helmet is made of Kevlar and reinforced plastics.";
-            armor.Value = 500;
-            armor.Weight = 0;
-            armor.SlotType = ArmorSlot.Head;
-            armor.ArmorClass = 9;
-            armor.ResistNormal.Resistance = 0;
-            armor.ResistNormal.Threshold = 0;
-            armor.ResistLaser.Resistance = 0;
-            armor.ResistLaser.Threshold = 0;
-            armor.ResistFire.Resistance = 0;
-            armor.ResistFire.Threshold = 0;
-            armor.ResistPlasma.Resistance = 0;
-            armor.ResistPlasma.Threshold = 0;
-            armor.ResistExplosion.Resistance = 0;
-            armor.ResistExplosion.Threshold = 0;
-
-            character.Gear.Add(armor);
-
-            armor = new Armor();
-            armor.Name = "No Helmet";
-            armor.Description = "May your hair keep you warm";
-            armor.Value = 0;
-            armor.Weight = 0;
-            armor.SlotType = ArmorSlot.Head;
-            armor.ArmorClass = 0;
-            armor.ResistNormal.Resistance = 0;
-            armor.ResistNormal.Threshold = 0;
-            armor.ResistLaser.Resistance = 0;
-            armor.ResistLaser.Threshold = 0;
-            armor.ResistFire.Resistance = 0;
-            armor.ResistFire.Threshold = 0;
-            armor.ResistPlasma.Resistance = 0;
-            armor.ResistPlasma.Threshold = 0;
-            armor.ResistExplosion.Resistance = 0;
-            armor.ResistExplosion.Threshold = 0;
-
-            character.Gear.Add(armor);
-
-            armor = new Armor();
-            armor.Name = "No Armor";
-            armor.Description = "Those are some snazzy clothes you have on.";
-            armor.Value = 0;
-            armor.Weight = 0;
+            mod = new Modifier();
+            res = new ArmorResistance();
+            armor.Name = "Football Padding";
+            armor.Description = "Football Padding";
+            armor.Value = 1000;
+            armor.Weight = 15;
             armor.SlotType = ArmorSlot.Body;
-            armor.ArmorClass = 0;
-            armor.ResistNormal.Resistance = 0;
-            armor.ResistNormal.Threshold = 0;
-            armor.ResistLaser.Resistance = 0;
-            armor.ResistLaser.Threshold = 0;
-            armor.ResistFire.Resistance = 0;
-            armor.ResistFire.Threshold = 0;
-            armor.ResistPlasma.Resistance = 0;
-            armor.ResistPlasma.Threshold = 0;
-            armor.ResistExplosion.Resistance = 0;
-            armor.ResistExplosion.Threshold = 0;
-
+            mod = new Modifier();
+            mod.ArmorClass = 15;
+            //Normal
+            res = new ArmorResistance();
+            res.Threshold = 2;
+            res.Resistance = 25;
+            res.ResistanceType = ResistType.Normal;
+            mod.ArmorResists.Add(res);
+            //Laser
+            res = new ArmorResistance();
+            res.Threshold = 1;
+            res.Resistance = 25;
+            res.ResistanceType = ResistType.Laser;
+            mod.ArmorResists.Add(res);
+            //Fire
+            res = new ArmorResistance();
+            res.Threshold = 2;
+            res.Resistance = 25;
+            res.ResistanceType = ResistType.Fire;
+            mod.ArmorResists.Add(res);
+            //Plasma
+            res = new ArmorResistance();
+            res.Threshold = 5;
+            res.Resistance = 25;
+            res.ResistanceType = ResistType.Plasma;
+            mod.ArmorResists.Add(res);
+            //Explosion
+            res = new ArmorResistance();
+            res.Threshold = 5;
+            res.Resistance = 20;
+            res.ResistanceType = ResistType.Explosion;
+            mod.ArmorResists.Add(res);
+            armor.Mod = mod;
             character.Gear.Add(armor);
 
+            //armor = new Armor();
+            //armor.Name = "Metal Armor";
+            //armor.Description = "A jacket of armor made from pieces of scrap metal welded together.";
+            //armor.Value = 1100;
+            //armor.Weight = 35;
+            //armor.SlotType = ArmorSlot.Body;
+            //mod = new Modifier();
+            //mod.ArmorClass = 10;
+            //mod.ResistNormal.Resistance = 30;
+            //mod.ResistNormal.Threshold = 4;
+            //mod.ResistLaser.Resistance = 75;
+            //mod.ResistLaser.Threshold = 6;
+            //mod.ResistFire.Resistance = 10;
+            //mod.ResistFire.Threshold = 4;
+            //mod.ResistPlasma.Resistance = 20;
+            //mod.ResistPlasma.Threshold = 4;
+            //mod.ResistExplosion.Resistance = 25;
+            //mod.ResistExplosion.Threshold = 4;
+            //armor.Mod = mod;
+            //SkillModifier skillmod = new SkillModifier();
+            //skillmod.Skill = "Sneak";
+            //skillmod.Value = -25;
+            //mod.Skill.Add(skillmod);
+            
+
+            //character.Gear.Add(armor);
+
+            //armor = new Armor();
+            //armor.Name = "Leather Cap";
+            //armor.Description = "A simple cap, made from tanned Brahmin hide.";
+            //armor.Value = 90;
+            //armor.Weight = 0;
+            //armor.SlotType = ArmorSlot.Head;
+            //mod = new Modifier();
+            //mod.ArmorClass = 3;
+            //mod.ResistNormal.Resistance = 0;
+            //mod.ResistNormal.Threshold = 0;
+            //mod.ResistLaser.Resistance = 0;
+            //mod.ResistLaser.Threshold = 0;
+            //mod.ResistFire.Resistance = 0;
+            //mod.ResistFire.Threshold = 0;
+            //mod.ResistPlasma.Resistance = 0;
+            //mod.ResistPlasma.Threshold = 0;
+            //mod.ResistExplosion.Resistance = 0;
+            //mod.ResistExplosion.Threshold = 0;
+            //armor.Mod = mod;
+            //character.Gear.Add(armor);
+
+            //armor = new Armor();
+            //armor.Name = "Combat Helmet";
+            //armor.Description = "Part of a suit of combat armor, this helmet is made of Kevlar and reinforced plastics.";
+            //armor.Value = 500;
+            //armor.Weight = 0;
+            //armor.SlotType = ArmorSlot.Head;
+            //mod = new Modifier();
+            //mod.ArmorClass = 9;
+            //mod.ResistNormal.Resistance = 0;
+            //mod.ResistNormal.Threshold = 0;
+            //mod.ResistLaser.Resistance = 0;
+            //mod.ResistLaser.Threshold = 0;
+            //mod.ResistFire.Resistance = 0;
+            //mod.ResistFire.Threshold = 0;
+            //mod.ResistPlasma.Resistance = 0;
+            //mod.ResistPlasma.Threshold = 0;
+            //mod.ResistExplosion.Resistance = 0;
+            //mod.ResistExplosion.Threshold = 0;
+            //armor.Mod = mod;
+            //character.Gear.Add(armor);
+
+            //armor = new Armor();
+            //armor.Name = "No Helmet";
+            //armor.Description = "May your hair keep you warm";
+            //armor.Value = 0;
+            //armor.Weight = 0;
+            //armor.SlotType = ArmorSlot.Head;
+            //mod = new Modifier();
+            //mod.ArmorClass = 0;
+            //mod.ResistNormal.Resistance = 0;
+            //mod.ResistNormal.Threshold = 0;
+            //mod.ResistLaser.Resistance = 0;
+            //mod.ResistLaser.Threshold = 0;
+            //mod.ResistFire.Resistance = 0;
+            //mod.ResistFire.Threshold = 0;
+            //mod.ResistPlasma.Resistance = 0;
+            //mod.ResistPlasma.Threshold = 0;
+            //mod.ResistExplosion.Resistance = 0;
+            //mod.ResistExplosion.Threshold = 0;
+            //armor.Mod = mod;
+            //character.Gear.Add(armor);
+
+            //armor = new Armor();
+            //armor.Name = "No Armor";
+            //armor.Description = "Those are some snazzy clothes you have on.";
+            //armor.Value = 0;
+            //armor.Weight = 0;
+            //armor.SlotType = ArmorSlot.Body;
+            //mod = new Modifier();
+            //mod.ArmorClass = 0;
+            //mod.ResistNormal.Resistance = 0;
+            //mod.ResistNormal.Threshold = 0;
+            //mod.ResistLaser.Resistance = 0;
+            //mod.ResistLaser.Threshold = 0;
+            //mod.ResistFire.Resistance = 0;
+            //mod.ResistFire.Threshold = 0;
+            //mod.ResistPlasma.Resistance = 0;
+            //mod.ResistPlasma.Threshold = 0;
+            //mod.ResistExplosion.Resistance = 0;
+            //mod.ResistExplosion.Threshold = 0;
+            //armor.Mod = mod;
+            //character.Gear.Add(armor);
+            //armor = new Armor();
+            //armor.Name = "Robe";
+            //armor.Description = "Those are some snazzy clothes you have on.";
+            //armor.Value = 1;
+            //armor.Weight = 2;
+            //armor.SlotType = ArmorSlot.Body;
+            //mod = new Modifier();
+            //mod.ArmorClass = 5;
+            //mod.ResistNormal.Resistance = 20;
+            //mod.ResistNormal.Threshold = 0;
+            //mod.ResistLaser.Resistance = 25;
+            //mod.ResistLaser.Threshold = 0;
+            //mod.ResistFire.Resistance = 10;
+            //mod.ResistFire.Threshold = 0;
+            //mod.ResistPlasma.Resistance = 10;
+            //mod.ResistPlasma.Threshold = 0;
+            //mod.ResistExplosion.Resistance = 10;
+            //mod.ResistExplosion.Threshold = 0;
+            //armor.Mod = mod;
+            //character.Gear.Add(armor);
             db.SaveChanges();
             return RedirectToAction("Character", new { id = id });
         }
@@ -574,49 +646,108 @@ namespace Fallout.Controllers
         public ActionResult CyberneticSeed(int id)
         {
             Cybernetics cyber = new Cybernetics();
-            cyber.StaticMods = new Modifier();
-            cyber.StaticMods.ResistRadiation = 80;
-            cyber.StaticMods.Intelligence = 2;
-            cyber.StaticMods.ResistGas = 70;
-            cyber.StaticMods.Strength = 1;
-            cyber.StaticMods.Endurance = 1;
-            cyber.StaticMods.Agility = -1;
-            cyber.StaticMods.ArmorClass = 5;
-            cyber.StaticMods.ResistNormal.Resistance = 20;
-            cyber.StaticMods.ResistNormal.Threshold = 3;
-            cyber.StaticMods.ResistLaser.Resistance = 10;
-            cyber.StaticMods.ResistLaser.Threshold = 1;
-            cyber.StaticMods.ResistFire.Resistance = 10;
-            cyber.StaticMods.ResistFire.Threshold = 1;
-            cyber.StaticMods.ResistPlasma.Resistance = 5;
-            cyber.StaticMods.ResistExplosive.Resistance = 25;
-            cyber.StaticMods.ResistExplosive.Threshold = 5;
+            Modifier mod = new Modifier();
+            mod.ResistRadiation = 80;
+            mod.Intelligence = 2;
+            mod.ResistGasDR = 70;
+            mod.Strength = 1;
+            mod.Endurance = 1;
+            mod.Agility = -1;
+            mod.ArmorClass = 5;
+            ArmorResistance res = new ArmorResistance();
+            //Normal
+            res = new ArmorResistance();
+            res.Threshold = 3;
+            res.Resistance = 20;
+            res.ResistanceType = ResistType.Normal;
+            mod.ArmorResists.Add(res);
+            //Laser
+            res = new ArmorResistance();
+            res.Threshold = 1;
+            res.Resistance = 10;
+            res.ResistanceType = ResistType.Laser;
+            mod.ArmorResists.Add(res);
+            //Fire
+            res = new ArmorResistance();
+            res.Threshold = 1;
+            res.Resistance = 10;
+            res.ResistanceType = ResistType.Fire;
+            mod.ArmorResists.Add(res);
+            //Plasma
+            res = new ArmorResistance();
+            res.Threshold = 0;
+            res.Resistance = 5;
+            res.ResistanceType = ResistType.Plasma;
+            mod.ArmorResists.Add(res);
+            //Explosion
+            res = new ArmorResistance();
+            res.Threshold = 5;
+            res.Resistance = 25;
+            res.ResistanceType = ResistType.Explosion;
+            mod.ArmorResists.Add(res);
 
-
-            cyber.StaticMods.Skill = new List<SkillModifier>();
             SkillModifier skill = new SkillModifier();
             skill.Skill = "Small Guns";
             skill.Value = 10;
-            cyber.StaticMods.Skill.Add(skill);
+            mod.Skill.Add(skill);
             skill = new SkillModifier();
             skill.Skill = "Big Guns";
             skill.Value = 10;
-            cyber.StaticMods.Skill.Add(skill);
+            mod.Skill.Add(skill);
             skill = new SkillModifier();
             skill.Skill = "Energy Weapons";
             skill.Value = 10;
-            cyber.StaticMods.Skill.Add(skill);
+            mod.Skill.Add(skill);
             skill = new SkillModifier();
             skill.Skill = "Throwing";
             skill.Value = 10;
-            cyber.StaticMods.Skill.Add(skill);
-
+            mod.Skill.Add(skill);
+            cyber.StaticMods = mod;
             Character character = db.Characters.Find(id);
             character.Cybernetics = cyber;
             db.SaveChanges();
 
             return RedirectToAction("Character", new { id = id });
         }
+
+        public ActionResult CharacterSeed()
+        {
+            Character character = new Character();
+
+            character.PlayerName = "Nicholas";
+            character.CharacterName = "Samuel";
+            character.Age = 32;
+            character.Sex = "Male";
+            character.Race = "Cyborg";
+            character.Eyes = "Green";
+            character.Hair = "Brown";
+            character.Height = 6;
+            character.Weight = 199;
+            character.Description = "Crazy Healer Dude";
+            character.Strength = 4;
+            character.Perception = 7;
+            character.Endurance = 7;
+            character.Charisma = 3;
+            character.Intelligence = 8;
+            character.Agility = 7;
+            character.Luck = 4;
+            character.Experience = 1087;
+            character.CurrentActionPoints = 0;
+            character.CurrentHitPoints = 0;
+
+            character.Traits = new List<Trait>();
+            character.Skills = new List<Skill>();
+            character.Perks = new List<Perk>();
+            character.Gear = new List<Equipment>();
+
+            db.Characters.Add(character);
+            db.SaveChanges();
+
+
+            return RedirectToAction("Index");
+        }
+
+        #endregion
 
     }
 }

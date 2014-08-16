@@ -30,7 +30,7 @@ namespace Fallout.Models
         public decimal Height { get; set; }
         public decimal Weight { get; set; }
         public string Description { get; set; }
-        //public string LastRoll { get; set; }
+        public string LastRoll { get; set; }
         //Base Stats
         public int Strength { get; set; }
         public int Perception { get; set; }
@@ -43,11 +43,11 @@ namespace Fallout.Models
         public int Experience { get; set; }
         public int CurrentHitPoints { get; set; }
         public int CurrentActionPoints { get; set; }
-        //Gear Slots
-        public virtual Armor BodyArmor { get; set; }
-        public virtual Armor HeadArmor { get; set; }
-        public virtual Weapon LeftHand { get; set; }
-        public virtual Weapon RightHand { get; set; }
+        //Equipped Gear Slots
+        public int? BodyArmorID { get; set; }
+        public int? HeadArmorID { get; set; }
+        public int? LeftHandID { get; set; }
+        public int? RightHandID { get; set; }
         //gogoCybernetics
         public virtual Cybernetics Cybernetics { get; set; }
         //OmgLists
@@ -57,6 +57,16 @@ namespace Fallout.Models
         public virtual ICollection<Equipment> Gear { get; set; }
         
     }
+
+    public enum EquipmentSlot
+    { 
+        Head = 1, 
+        Body,
+        LeftHand,
+        RightHand
+    }
+
+
     public class Modifier
     {
         public int ModifierID { get; set; }
@@ -73,26 +83,28 @@ namespace Fallout.Models
         public int MeleeDamage { get; set; }
         public int ResistPoison { get; set; }
         public int ResistRadiation { get; set; }
-        public int ResistGas { get; set; }
+        public int ResistGasDT { get; set; }
+        public int ResistGasDR { get; set; }
+        public int ResistBurn { get; set; }
         public int ResistElectricity { get; set; }
-        public virtual ArmorResistance ResistNormal { get; set; }
-        public virtual ArmorResistance ResistLaser { get; set; }
-        public virtual ArmorResistance ResistFire { get; set; }
-        public virtual ArmorResistance ResistPlasma { get; set; }
-        public virtual ArmorResistance ResistExplosive { get; set; }
-
+        public int HealRate { get; set; }
+        public int Sequence { get; set; }
+        public int Critical { get; set; }
+        public int PERange { get; set; }
         
+        //public virtual ArmorResistance ResistNormal { get; set; }
+        //public virtual ArmorResistance ResistLaser { get; set; }
+        //public virtual ArmorResistance ResistFire { get; set; }
+        //public virtual ArmorResistance ResistPlasma { get; set; }
+        //public virtual ArmorResistance ResistExplosion { get; set; }
+
+        public virtual ICollection<ArmorResistance> ArmorResists { get; set; }
         public virtual ICollection<SkillModifier> Skill { get; set; }
 
         public Modifier()
         {
-            ResistNormal = new ArmorResistance();
-            ResistLaser = new ArmorResistance();
-            ResistFire = new ArmorResistance();
-            ResistPlasma = new ArmorResistance();
-            ResistExplosive = new ArmorResistance();
+            ArmorResists = new List<ArmorResistance>();
             Skill = new List<SkillModifier>();
-
         }
 
         public bool HasSkill(string Skillname)
@@ -115,15 +127,6 @@ namespace Fallout.Models
 
     }
 
-    public enum ArmorResistanceType
-    { 
-        ResistNormal = 1,
-        ResistLaser,
-        ResistFire,
-        ResistPlasma,
-        ResistExplosive
-    }
-
     public enum ModifierType
     { 
         Strength = 1,
@@ -139,80 +142,56 @@ namespace Fallout.Models
         MeleeDamage,
         ResistPoison,
         ResistRadiation,
-        ResistGas,
-        ResistElectricity      
+        ResistGasDT,
+        ResistGasDR,
+        ResistBurn,
+        ResistElectricity,
+        HealRate,
+        Sequence,
+        Critical,
+        PERange
+ 
     }
 
     public class SkillModifier
     {
         public int SkillModifierID { get; set; }
-        public int ModifierID { get; set; }
         public string Skill { get; set; }
         public int Value { get; set; }
-
-        public virtual Modifier Modifier { get; set; }
     }
     public class Trait
     {
         public int TraitID { get; set; }
-        
         public string Name { get; set; }
         public string Description { get; set; }
-        
-        public int? ModifierID { get; set; }
         public virtual Modifier Mod { get; set; }
-
-        public int CharacterID { get; set; }
         public virtual Character Character { get; set; }
     }
     public class Skill
     {
         public int SkillID { get; set; }
-        
         public string Name { get; set; }
         public string Description { get; set; }
         public bool Tagged { get; set; }
         public int PointsInvested { get; set; }
-        public int BaseTotal { get; set; }
-
-        public int CharacterID { get; set; }
         public virtual Character Character { get; set; }
-
-        public int TotalPercent
-        {
-            get
-            {
-                return BaseTotal + PointsInvested;
-            }
-        }
     }
     public class Perk
     {
         public int PerkID { get; set; }
-        
         public string Name { get; set; }
         public string Description { get; set; }
-        
-        public int? ModifierID { get; set; }
         public virtual Modifier Mod { get; set; }
-        
-        public int CharacterID { get; set; }
-        public virtual Character Character { get; set; }
     }
     public class Equipment
     {
         public int EquipmentID { get; set; }
-        
         public string Name { get; set; }
         public string Description { get; set; }
         public int Value { get; set; }
         public int Weight { get; set; }
-
-        public int? ModifierID { get; set; }
         public virtual Modifier Mod { get; set; }
-
-        public int CharacterID { get; set; }
-        public virtual Character Character { get; set; }
+        
     }
     public class Weapon : Equipment
     {
@@ -223,26 +202,12 @@ namespace Fallout.Models
         public int APTargeted { get; set; }
         public int APBurst { get; set; }
         public int MagSize { get; set; }
+
     }
     
     public class Armor : Equipment
     {
         public ArmorSlot SlotType { get; set; }
-        public int ArmorClass { get; set; }
-        public virtual ArmorResistance ResistNormal { get; set; }
-        public virtual ArmorResistance ResistLaser { get; set; }
-        public virtual ArmorResistance ResistFire { get; set; }
-        public virtual ArmorResistance ResistPlasma { get; set; }
-        public virtual ArmorResistance ResistExplosion { get; set; }
-
-        public Armor()
-        {
-            ResistNormal = new ArmorResistance();
-            ResistLaser = new ArmorResistance();
-            ResistFire = new ArmorResistance();
-            ResistPlasma = new ArmorResistance();
-            ResistExplosion = new ArmorResistance();
-        }
     }
 
     public enum ArmorSlot
@@ -251,13 +216,20 @@ namespace Fallout.Models
         Body = 2
     }
     
+    public enum ResistType
+    {
+        Normal = 1,
+        Laser,
+        Fire,
+        Plasma,
+        Explosion
+    }
+
     public class ArmorResistance
     {
         public int ArmorResistanceID { get; set; }
         public int Threshold { get; set; }
         public int Resistance { get; set; }
-
-        //public int ArmorID { get; set; }
-        //public virtual Armor Armor { get; set; }
+        public ResistType ResistanceType { get; set; }
     }
 }

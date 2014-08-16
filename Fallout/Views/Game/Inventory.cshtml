@@ -1,0 +1,29 @@
+﻿@model Fallout.Models.Character
+
+@{
+    ViewBag.Title = "Inventory";
+}
+
+<h2>Inventory</h2>
+<table>
+    @foreach (var gear in Model.Gear)
+    {
+        <tr>
+            <td>@gear.Weight</td>
+            <td>@gear.Name</td>
+            <td>@gear.Value</td>
+            <td>
+                @using(Html.BeginForm("RemoveInventory", "Game"))
+                {
+                    @Html.Hidden("CharacterID", Model.CharacterID);
+                    @Html.Hidden("EquipmentID", @gear.EquipmentID);
+                    <input type="submit" value="Remove" />
+                }
+            </td>
+        </tr>
+
+    }
+</table>
+<div>
+    @{Html.RenderPartial("AddInventory", new Fallout.Models.Equipment() );}
+</div>

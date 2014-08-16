@@ -6,19 +6,19 @@
 }
 
 <div class="RPInfo" style="width:100%;border:1px solid black">
-    Name: <span style="width:50%">@Model.Character.CharacterName </span> 
-    Age: <span style="width:5%">@Model.Character.Age </span>
-    Sex: <span style="width:5%">@Model.Character.Sex </span>
-    Race: <span style="width:10%">@Model.Character.Race </span><br />
-    Eyes: <span style="width:20%">@Model.Character.Eyes </span> 
-    Hair: <span style="width:20%">@Model.Character.Hair </span>
-    Height: <span style="width:20%">@Model.Character.Height </span>
-    Weight: <span style="width:20%">@Model.Character.Weight </span><br />
-    Description: @Model.Character.Description @Html.ActionLink("Weapons, yo", "WeaponSeed", new { id = Model.Character.CharacterID }) @Html.ActionLink("Armor, yo", "ArmorSeed", new { id = Model.Character.CharacterID} )
+    Name: @Model.Character.CharacterName
+    Age: @Model.Character.Age 
+    Sex: @Model.Character.Sex
+    Race: @Model.Character.Race<br />
+    Eyes: @Model.Character.Eyes
+    Hair: @Model.Character.Hair
+    Height: @Model.Character.Height
+    Weight: @Model.Character.Weight<br />
+    Description: @Model.Character.Description @Html.ActionLink("Weapons, yo", "WeaponSeed", new { id = Model.Character.CharacterID }) @Html.ActionLink("Armor, yo", "ArmorSeed", new { id = Model.Character.CharacterID} ) @Html.ActionLink("Inventory", "Inventory", new { id = Model.Character.CharacterID})
     @Html.ActionLink("Good Natured", "TraitSeed", new { id = Model.Character.CharacterID })  @Html.ActionLink("Cybernetics", "CyberneticSeed", new { id = Model.Character.CharacterID})
 </div>
 <div class="LeftColumn" style="float:left; width:49%; margin-top:10px">
-    <div class="Stats" style="border:1px solid Black">
+    <div class="Stats box">
         <table style="width:100%">
             <tr><th></th><th>Total</th><th>Mod</th><th>Base</th></tr>
             <tr><td>ST</td><td>@Model.Strength</td><td>@Model.CollateModifiers(ModifierType.Strength)</td><td>@Model.Character.Strength</td></tr>
@@ -32,8 +32,8 @@
 
     </div>
     <div class="LevelBox" style="margin-top:10px; border:1px solid black;padding:5px 5px">
-        Level <span style="border:1px solid black">@Model.CharacterLevel</span> Karma <span style="border:1px solid black">0</span> Hp/Level <span style="border:1px solid black">33</span><br />
-        Experience <span style="border:1px solid black">@Model.Character.Experience</span> Carry Weight <span style="border:1px solid black">@Model.CarryWeight lbs</span><br />
+        Level <span class="box">@Model.CharacterLevel</span> Karma <span class="box">0</span> Hp/Level <span class="box">33</span><br />
+        Experience <span class="box">@Model.Character.Experience</span> Carry Weight <span class="box">@Model.CarryWeight lbs</span><br />
         Wounds <span style="border:1px solid black; width:100%"></span>
 
     </div>
@@ -46,43 +46,43 @@
             <tr><th></th><th>DT</th><th>DR</th><th>Mod</th><th>Base</th><th>Armor</th></tr>
             <tr>
                 <td>Normal</td>
-                <td>@Model.ResistNormalBody.Threshold (3)</td>
-                <td>@Model.ResistNormalBody.Resistance (40)</td>
-                <td>33</td>
-                <td>33</td>
-                <td>33</td>
+                <td>@Model.ResistNormalBody.Threshold</td>
+                <td>@Model.ResistNormalBody.Resistance</td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
                 <td>Laser</td>
-                <td>@Model.ResistNormalBody.Threshold (1)</td>
-                <td>@Model.ResistNormalBody.Resistance (35)</td>
-                <td>33</td>
-                <td>33</td>
-                <td>33</td>
+                <td>@Model.ResistLaserBody.Threshold</td>
+                <td>@Model.ResistLaserBody.Resistance</td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
                 <td>Fire</td>
-                <td>@Model.ResistNormalBody.Threshold (1)</td>
-                <td>@Model.ResistNormalBody.Resistance (20)</td>
-                <td>33</td>
-                <td>33</td>
-                <td>33</td>
+                <td>@Model.ResistFireBody.Threshold</td>
+                <td>@Model.ResistFireBody.Resistance</td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
                 <td>Plasma</td>
-                <td>@Model.ResistNormalBody.Threshold (0)</td>
-                <td>@Model.ResistNormalBody.Resistance (15)</td>
-                <td>33</td>
-                <td>33</td>
-                <td>33</td>
+                <td>@Model.ResistPlasmaBody.Threshold</td>
+                <td>@Model.ResistPlasmaBody.Resistance</td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
                 <td>Explosive</td>
-                <td>@Model.ResistNormalBody.Threshold (5)</td>
-                <td>@Model.ResistNormalBody.Resistance (35)</td>
-                <td>33</td>
-                <td>33</td>
-                <td>33</td>
+                <td>@Model.ResistExplosionBody.Threshold</td>
+                <td>@Model.ResistExplosionBody.Resistance</td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
 
         </table>
@@ -90,63 +90,51 @@
         <table style="width:100%; margin-bottom:10px; text-align:right">
             <tr>
                 <td>Poison</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.ResistPoison</td>
                 <td>Rad</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.ResistRadiation</td>
                 <td>Heal</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.HealingRate</td>
             </tr>
             <tr>
                 <td>Burn</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.ResistBurn</td>
                 <td>Elec</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.ResistElectricity</td>
                 <td>Gas</td>
-                <td style="border:1px solid black">33/33</td>
+                <td class="box">@Model.ResistGasDT / @Model.ResistGasDR</td>
             </tr>
         </table>
-        <h5>Armor Condition</h5>
-        <table style="width:100%; border:1px solid black; margin-bottom:10px">
-            <tr>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-                <td style="border:1px solid black"></td>
-            </tr>
-        </table>
-        @using (Html.BeginForm("SetHeadItem", "Game"))
+        
+        @using (Html.BeginForm("EquipItem", "Game"))
         {
-            @:Head: @Html.DropDownListFor(m => m.HeadSlot, new SelectList(Model.HeadOptions, "EquipmentID", "Name", Model.Character.HeadArmor.EquipmentID), "Select Item")
             @Html.Hidden("CharacterID", Model.Character.CharacterID);
+            @:Head: @Html.DropDownListFor(m => m.HeadSlotID, new SelectList(Model.HeadOptions, "EquipmentID", "Name", Model.HeadSlot))
+            @Html.Hidden("EquipmentType", EquipmentSlot.Head)
             <input type="submit" value="Equip" />
         }
-        @using (Html.BeginForm("SetBodyItem", "Game"))
+        @using (Html.BeginForm("EquipItem", "Game"))
         {
-            @:Body: @Html.DropDownListFor(m => m.BodySlot, new SelectList(Model.BodyOptions, "EquipmentID", "Name", 7), "Select Item")
             @Html.Hidden("CharacterID", Model.Character.CharacterID);
+            @:Body: @Html.DropDownListFor(m => m.BodySlotID, new SelectList(Model.BodyOptions, "EquipmentID", "Name", Model.BodySlot))
+            @Html.Hidden("EquipmentType", EquipmentSlot.Body)
             <input type="submit" value="Equip" />
         }
         <h5>Combat</h5>
         <table style="width:100%; margin-bottom:10px">
             <tr>
                 <td>Action Points</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.ActionPoints</td>
                 <td>Sequence</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.Sequence</td>
                 <td>PE Range</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.PERange</td>
             </tr>
             <tr>
                 <td>Melee Damage</td>
-                <td style="border:1px solid black">@Model.MeleeDamage</td>
+                <td class="box">@Model.MeleeDamage</td>
                 <td>Critical Chance</td>
-                <td style="border:1px solid black">33</td>
+                <td class="box">@Model.Critical</td>
                 <td></td>
                 <td></td>
             </tr>
@@ -163,7 +151,7 @@
             {
                 <tr>
                     <td>@skills.Name</td>
-                    <td style="border:1px solid black">@Model.SkillTotal(skills.Name)</td>
+                    <td class="box">@Model.SkillTotal(skills.Name)</td>
                     <td>@skills.PointsInvested</td>
                     <td>@Model.CollateModifiers(skills.Name)</td>
                     <td>@Model.SkillBase(skills.Name)</td>
@@ -174,27 +162,107 @@
     <div class="OffenseStats" style="border:1px solid black; margin-top:10px">
         <div class="LeftHand" style="float:left;width:49%;">
             <h5>Left Hand</h5>
-            <select id="LeftHandSelect">
-                @foreach (Equipment item in Model.Character.Gear)
-                { 
-                    if(item is Weapon)
-                    { 
-                        <option value="@item.EquipmentID">@item.Name</option>
-                    }
-                }
-            </select>
+            <table class="WeaponTable">
+                <tr>
+                    <td colspan="3">
+                        @using (Html.BeginForm("EquipItem", "Game"))
+                        {
+                            @Html.Hidden("CharacterID", Model.Character.CharacterID);
+                            @Html.DropDownListFor(m => m.LeftHandID, new SelectList(Model.WeaponOptions, "EquipmentID", "Name", Model.LeftHand))
+                            @Html.Hidden("EquipmentType", EquipmentSlot.LeftHand)
+                            <input type="submit" value="Equip" />
+                        }             
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        AP: S: @Model.LeftHand.APSingle
+                    </td>
+                    <td>
+                        T: @Model.LeftHand.APTargeted
+                    </td>
+                    <td>
+                        B: @Model.LeftHand.APBurst
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        Condition:
+
+                    </td>
+                    <td>
+                        Range: @Model.LeftHand.Range
+                    </td>
+                </tr>
+                <tr>
+                    <td>Gun Dmg: </td>
+                    <td>Ammo Dmg: </td>
+                    <td>Spec. Dmg: </td>
+                </tr>
+                <tr>
+                    <td>@Model.LeftHand.Damage</td>
+                    <td>1D8</td>
+                    <td>0</td>
+                </tr>
+            </table>
+           
         </div>
         <div class="RightHand" style="margin-left:51%">
             <h5>Right Hand</h5>
-            <select id="RightHandSelect">
-            @foreach (Equipment item in Model.Character.Gear)
-            {
-                if (item is Weapon)
-                {
-                    <option value="@item.EquipmentID">@item.Name</option>
-                }
-            }
-            </select>
+            <table class="WeaponTable">
+                <tr>
+                    <td colspan="3">
+                        @using (Html.BeginForm("EquipItem", "Game"))
+                        {
+                            @Html.Hidden("CharacterID", Model.Character.CharacterID);
+                            @Html.DropDownListFor(m => m.RightHandID, new SelectList(Model.WeaponOptions, "EquipmentID", "Name", Model.RightHand))
+                            @Html.Hidden("EquipmentType", EquipmentSlot.RightHand)
+                            <input type="submit" value="Equip" />
+                        }
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        AP:
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Single:<br /> @Model.RightHand.APSingle
+                    </td>
+                    <td>
+                        Target:<br /> @Model.RightHand.APTargeted
+                    </td>
+                    <td>
+                        Burst:<br /> @Model.RightHand.APBurst
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        Condition:
+                        
+                    </td>
+                    <td>
+                        @{int totalrange = Model.RightHand.Range + Model.PERange;}
+                        Range: @Model.RightHand.Range (@totalrange)
+                    </td>
+                </tr>
+                <tr>
+                    <td>Gun Dmg: </td>
+                    <td>Ammo Dmg: </td>
+                    <td>Spec. Dmg: </td>
+                </tr>
+                <tr>
+                    <td>@Model.RightHand.Damage</td>
+                    <td>1D8</td>
+                    <td>0</td>
+                </tr>
+            </table>
+            
+           
+
         </div>
 
     </div>
